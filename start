@@ -1,0 +1,6 @@
+#!bin/sh
+
+git clone -q --depth=1 "${UPSTREAM_REPO:-"https://github.com/anonymous-x97/UX-jutsu"}" ubot
+cd ubot
+pip -q install --no-cache-dir -r requirements.txt
+bash run
