@@ -5,6 +5,7 @@ git config --global credential.helper store
 
 if [ -d "ubot" ]; then
     rm -rf ubot
+    echo "removed older ubot dir"
 fi
 
 
