@@ -9,7 +9,7 @@ if [ -d "ubot" ]; then
 fi
 
 
-git clone -q --depth=1 "${UPSTREAM_REPO:-"https://github.com/anonymous-x97/UX-jutsu"}" ubot
+git clone -q --depth=1 "${UPSTREAM_REPO:-"https://github.com/ashwinstr/VenomX"}" ubot
 cd ubot
 pip -q install --no-cache-dir -r req*.txt
 bash run
