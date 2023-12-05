@@ -1,4 +1,4 @@
-#!bin/sh
+#!bin/bash
 
 echo "${GH_TOKEN}" > ~/.git-credentials
 git config --global credential.helper store
@@ -8,6 +8,7 @@ if [ -d "ubot" ]; then
     echo "removed older ubot dir"
 fi
 
+export PIP_ROOT_USER_ACTION=ignore
 
 git clone -q --depth=1 "${UPSTREAM_REPO:-"https://github.com/ashwinstr/VenomX"}" ubot
 cd ubot
