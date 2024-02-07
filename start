@@ -1,7 +1,15 @@
 #!bin/bash
 
+if [ -z "${UPSTREAM_REPO}" ]; then
+    echo "UPSTREAM_REPO var is not set or is empty"
+    exit
+fi
+
+
 echo "${GH_TOKEN}" > ~/.git-credentials
+
 git config --global credential.helper store
+
 
 if [ -d "ubot" ]; then
     rm -rf ubot
@@ -10,7 +18,7 @@ fi
 
 export PIP_ROOT_USER_ACTION=ignore
 
-git clone -q --depth=1 "${UPSTREAM_REPO:-"https://github.com/ashwinstr/VenomX"}" ubot
+git clone -q --depth=1 "${UPSTREAM_REPO}" ubot
 cd ubot
 pip -q install --no-cache-dir -r req*.txt
 bash run
