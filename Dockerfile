@@ -1,5 +1,7 @@
 FROM ghcr.io/anonymousx97/build_essentials:main
 
+WORKDIR /app/
+
 # adding email and username to the bot
 RUN git config --global user.email "88324835+anonymousx97@users.noreply.github" && \
     git config --global user.name "anonymousx97"
