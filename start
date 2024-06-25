@@ -1,5 +1,19 @@
 #!bin/bash
 
+run_extra_boot_scripts() {
+  local directory="scripts"
+  if [[ -d "$directory" ]]; then
+    if [[ -n "$(ls -A "$directory")" ]]; then
+      for file in "$directory"/*; do
+        if [[ -f "$file" && -x "$file" ]]; then
+          echo "Executing $file"
+          "$file"
+        fi
+      done
+    fi
+  fi
+}
+
 if [ -z "${UPSTREAM_REPO}" ]; then
     echo "UPSTREAM_REPO var is not set or is empty"
     exit
@@ -21,4 +35,5 @@ export PIP_ROOT_USER_ACTION=ignore
 git clone -q --depth=1 "${UPSTREAM_REPO}" ubot
 cd ubot
 pip -q install --no-cache-dir -r req*.txt
+run_extra_boot_scripts
 bash run
