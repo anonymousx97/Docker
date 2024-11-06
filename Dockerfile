@@ -1,3 +1,5 @@
+# Private Image Python3.12.7-slim-bookworm Image
+# With some Apt packages installed.
 FROM ghcr.io/anonymousx97/build_essentials:main
 
 WORKDIR /app/
