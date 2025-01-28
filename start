@@ -16,7 +16,7 @@ run_extra_boot_scripts() {
 
 if [ -z "${UPSTREAM_REPO}" ]; then
     echo "UPSTREAM_REPO var is not set or is empty"
-    exit
+    exit 1
 fi
 
 
@@ -24,16 +24,21 @@ echo "${GH_TOKEN}" > ~/.git-credentials
 
 git config --global credential.helper store
 
-
-if [ -d "ubot" ]; then
-    rm -rf ubot
-    echo "removed older ubot dir"
-fi
-
 export PIP_ROOT_USER_ACTION=ignore
 
-git clone -q --depth=1 "${UPSTREAM_REPO}" ubot
-cd ubot
+pull(){
+    cd ubot 
+    git pull --rebase
+}
+
+clone (){
+    echo "Clonning UPSTREAM_REPO into ubot"
+    git clone -q --depth=1 "${UPSTREAM_REPO}" ubot
+    cd ubot || { echo "Failed to clone repo." ; exit 1; }
+}
+
+[ -d "ubot" ] && pull || clone
+
 pip -q install --no-cache-dir -r req*.txt
 run_extra_boot_scripts
 bash run
