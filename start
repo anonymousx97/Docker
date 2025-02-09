@@ -27,8 +27,14 @@ git config --global credential.helper store
 export PIP_ROOT_USER_ACTION=ignore
 
 pull(){
+    # Pull Main Repo
     cd ubot 
     git pull --rebase
+
+    # Pull ext repo
+    wd=$(pwd)
+    [ -d "app/modules" ] && cd app/modules && git pull --rebase
+    cd "$wd"
 }
 
 clone (){
