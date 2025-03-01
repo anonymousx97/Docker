@@ -3,7 +3,7 @@ FROM ghcr.io/anonymousx97/docker:main
 # Add a user named "anonymous"  
 RUN useradd -u 10001 -m anonymous && \  
     # Create the /app directory  
-    mkdir /app && \  
+    mkdir -p /app && \  
     
     # Grant ownership of /app to the "anonymous" user  
     chown anonymous:anonymous /app && \  
