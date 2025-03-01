@@ -1,7 +1,7 @@
 FROM ghcr.io/anonymousx97/docker:main  
 
 # Add a user named "anonymous"  
-RUN useradd -m anonymous && \  
+RUN useradd -m -u 16969 anonymous && \  
     # Create the /app directory  
     mkdir /app && \  
     
