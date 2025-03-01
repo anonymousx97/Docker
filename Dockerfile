@@ -2,8 +2,6 @@
 # With some Apt packages installed.
 FROM ghcr.io/anonymousx97/build_essentials:main
 
-RUN useradd -m anonymous
-
 WORKDIR /app/
 
 # adding email and username to the bot
