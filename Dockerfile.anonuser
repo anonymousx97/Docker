@@ -1,0 +1,22 @@
+FROM ghcr.io/anonymousx97/docker:main  
+
+# Add a user named "anonymous"  
+RUN useradd -m anonymous && \  
+    # Create the /app directory  
+    mkdir /app && \  
+    
+    # Grant ownership of /app to the "anonymous" user  
+    chown anonymous:anonymous /app && \  
+    
+    # Set the password for "anonymous" to "abc"  
+    echo "anonymous:abc" | chpasswd && \  
+    
+    # Add "anonymous" to the sudo group  
+    usermod -aG sudo anonymous && \  
+    
+    # Allow "anonymous" to use sudo without a password  
+    echo "anonymous ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers  
+
+
+# Switch to the "anonymous" user  
+USER anonymous  
