@@ -15,8 +15,11 @@ RUN useradd -u 10001 -m anonymous && \
     usermod -aG sudo anonymous && \  
     
     # Allow "anonymous" to use sudo without a password  
-    echo "anonymous ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers  
+    echo "anonymous ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers  && \
 
+    chown -R anonymous:anonymous /home/anonymous && chmod -R u+w /home/anonymous
 
 # Switch to the "anonymous" user  
 USER 10001
+
+WORKDIR /home/anonymous
