@@ -1,19 +1,41 @@
-# Private Image Python3.12.7-slim-bookworm Image
-# With some Apt packages installed.
-FROM ghcr.io/anonymousx97/build_essentials:main
+# Private Python 3.12.7-slim-bookworm Image  
+# Based on a custom image with essential Apt packages installed.  
+FROM ghcr.io/anonymousx97/build_essentials:main  
 
-RUN useradd -m anonymous
+# Add a user named "anonymous"  
+RUN useradd -m anonymous && \  
+    # Create the /app directory  
+    mkdir /app && \  
+    
+    # Grant ownership of /app to the "anonymous" user  
+    chown anonymous:anonymous /app && \  
+    
+    # Set the password for "anonymous" to "abc"  
+    echo "anonymous:abc" | chpasswd && \  
+    
+    # Add "anonymous" to the sudo group  
+    usermod -aG sudo anonymous && \  
+    
+    # Allow "anonymous" to use sudo without a password  
+    echo "anonymous ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers  
 
-USER anonymous
 
-WORKDIR /app/
+# Set /app as the working directory  
+WORKDIR /app/  
 
-# adding email and username to the bot
-RUN git config --global user.email "88324835+anonymousx97@users.noreply.github" && \
-    git config --global user.name "anonymousx97"
 
-# Exposing Ports for Web Server
-EXPOSE 8080 22 8022
- 
-# Adding Remote Container Start Command
+# Switch to the "anonymous" user  
+USER anonymous  
+
+
+# Configure Git with a global email and username  
+RUN git config --global user.email "88324835+anonymousx97@users.noreply.github" && \  
+    git config --global user.name "anonymousx97"  
+
+
+# Expose ports for the web server and SSH  
+EXPOSE 8080 22 8022  
+
+
+# Run the remote container startup script  
 CMD bash -c "$(curl -fsSL https://raw.githubusercontent.com/anonymousx97/Docker/main/start)"
