@@ -1,4 +1,7 @@
-FROM ghcr.io/anonymousx97/docker:main  
+FROM ghcr.io/anonymousx97/docker:main 
+
+# Setup user's path
+ENV PATH="/home/anonymous/.local/bin:${PATH}"
 
 # Add a user named "anonymous"  
 RUN useradd -u 10001 -m anonymous && \  
