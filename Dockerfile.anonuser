@@ -3,6 +3,8 @@ FROM ghcr.io/anonymousx97/docker:main
 # Setup user's path
 ENV PATH="/home/anonymous/.local/bin:${PATH}"
 
+RUN apt update && apt install -y sudo 
+
 # Add a user named "anonymous"  
 RUN useradd -u 10001 -m anonymous && \  
     # Create the /app directory  
