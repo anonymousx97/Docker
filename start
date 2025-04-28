@@ -19,13 +19,6 @@ if [ -z "${UPSTREAM_REPO}" ]; then
     exit 1
 fi
 
-
-echo "${GH_TOKEN}" > ~/.git-credentials
-
-git config --global credential.helper store
-
-export PIP_ROOT_USER_ACTION=ignore
-
 pull(){
     # Pull Main Repo
     cd ubot 
@@ -43,8 +36,13 @@ clone (){
     cd ubot || { echo "Failed to clone repo." ; exit 1; }
 }
 
-[ -d "ubot" ] && pull || clone
 
+echo "${GH_TOKEN}" > ~/.git-credentials
+git config --global credential.helper store
+
+export PIP_ROOT_USER_ACTION=ignore PIP_DISABLE_PIP_VERSION_CHECK=1
+
+[ -d "ubot" ] && pull || clone
 pip -q install --no-cache-dir -r req*.txt
 run_extra_boot_scripts
 bash run
