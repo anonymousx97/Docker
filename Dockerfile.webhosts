@@ -4,8 +4,9 @@ COPY start setup
 
 RUN \
     --mount=type=secret,id=_env,dst=/etc/secrets/config.env \
-    apt-get update -y && apt-get install -y busybox && \
-    chmod +x setup && \
+    ls -l /etc/secrets/config.env \
+    apt-get update -y && apt-get install -y busybox \
+    chmod +x setup \
     ./setup --setup-repo --install-reqs --run-extra-boot-scripts
 
 CMD ./setup --run
