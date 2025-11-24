@@ -3,7 +3,7 @@ FROM ghcr.io/anonymousx97/docker:main
 COPY start setup
 
 RUN \
-    --mount=type=secret,id=_env,dst=/etc/secrets/config.env && \
+    --mount=type=secret,id=_env,dst=/etc/secrets/config.env \
     apt-get update -y && apt-get install -y busybox && \
     chmod +x setup && \
     ./setup --setup-repo --install-reqs --run-extra-boot-scripts
