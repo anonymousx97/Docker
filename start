@@ -122,9 +122,9 @@ run_bot() {
 }
 
 run_bot_with_timeout() {
-	export -f run_bot
+	cd_or_exit "$WORKDIR"
 	while true; do
-		timeout --kill-after=2m 3h bash -c run_bot
+		timeout --kill-after=2m 3h ./setup --run-bot
 		[[ "$?" -ne "124" ]] && break
 		echo "Started automatic restart..."
 	done
@@ -150,6 +150,9 @@ else
 			;;
 		--run-extra-boot-scripts)
 			run_extra_boot_scripts
+			;;
+		--run-bot)
+			run_bot
 			;;
 		--run)
 			start_nc_server
