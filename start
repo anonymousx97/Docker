@@ -5,9 +5,10 @@ export PIP_ROOT_USER_ACTION=ignore PIP_DISABLE_PIP_VERSION_CHECK=1
 WORKDIR="/app"
 BOT_DIR="${WORKDIR}/ubot"
 
-if [ -f /etc/secrets/config.env ]; then
-	. /etc/secrets/config.env
-	export $(cut -d= -f1 /etc/secrets/config.env)
+if [ -f "/etc/secrets/config.env" ]; then
+	echo "exporting secrects..."
+	. "/etc/secrets/config.env"
+	export $(cut -d= -f1 "/etc/secrets/config.env")
 fi
 
 cd_or_exit() {
