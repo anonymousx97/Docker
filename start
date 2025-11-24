@@ -90,7 +90,7 @@ run_extra_boot_scripts() {
 }
 
 start_nc_server() {
-	port="${WEB_PORT:-PORT}"
+	port="${WEB_PORT:-$PORT}"
 
 	[[ -z "$port" ]] && return 0
 
