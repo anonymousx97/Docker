@@ -122,8 +122,10 @@ run_bot() {
 }
 
 run_bot_with_timeout() {
+	export -f run_bot
 	while true; do
-		timeout 3h run_bot
+		timeout --kill-after=2m 3h bash -c run_bot
+		[[ "$?" -ne "124" ]] && break
 		echo "Started automatic restart..."
 	done
 }
