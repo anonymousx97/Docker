@@ -1,48 +1,152 @@
-#!bin/bash
-
-run_extra_boot_scripts() {
-  local directory="scripts"
-  if [[ -d "$directory" ]]; then
-    if [[ -n "$(ls -A "$directory")" ]]; then
-      for file in "$directory"/*; do
-        if [[ -f "$file" && -x "$file" ]]; then
-          echo "Executing $file"
-          "$file"
-        fi
-      done
-    fi
-  fi
-}
-
-if [ -z "${UPSTREAM_REPO}" ]; then
-    echo "UPSTREAM_REPO var is not set or is empty"
-    exit 1
-fi
-
-pull(){
-    # Pull Main Repo
-    cd ubot 
-    git pull --rebase
-
-    # Pull ext repo
-    wd=$(pwd)
-    [ -d "app/modules" ] && cd app/modules && git pull --rebase
-    cd "$wd"
-}
-
-clone (){
-    echo "Clonning UPSTREAM_REPO into ubot"
-    git clone -q --depth=1 "${UPSTREAM_REPO}" ubot
-    cd ubot || { echo "Failed to clone repo." ; exit 1; }
-}
-
-
-echo "${GH_TOKEN}" > ~/.git-credentials
-git config --global credential.helper store
+#!/usr/bin/env bash
 
 export PIP_ROOT_USER_ACTION=ignore PIP_DISABLE_PIP_VERSION_CHECK=1
 
-[ -d "ubot" ] && pull || clone
-pip -q install --no-cache-dir -r req*.txt
-run_extra_boot_scripts
-bash run
+WORKDIR="/app"
+BOT_DIR="${WORKDIR}/ubot"
+
+cd_or_exit() {
+	cd "$1" || {
+		echo -e "Failed to cd to ${1}\nExiting..."
+		exit 1
+	}
+}
+
+clone() {
+	cd_or_exit "$WORKDIR"
+
+	if [ -z "${UPSTREAM_REPO}" ]; then
+		echo "UPSTREAM_REPO var is not set or is empty"
+		exit 1
+	fi
+
+	echo "Cloning UPSTREAM_REPO into ubot"
+
+	if ! git clone -q --depth=1 "${UPSTREAM_REPO}" "$BOT_DIR"; then
+		echo "Failed to clone repo."
+		exit 1
+	fi
+
+	cd_or_exit "$WORKDIR"
+}
+
+pull() {
+	cd_or_exit "$BOT_DIR"
+
+	echo "running git pull on main repo..."
+
+	# Pull Main Repo
+	git pull --rebase
+
+	# Pull ext repo
+	[[ -d "app/modules" ]] &&
+		echo "running git pull on external repo..." &&
+		cd app/modules &&
+		git pull --rebase
+
+	cd_or_exit "$WORKDIR"
+}
+
+setup_repo() {
+	echo "Initiating repo setup..."
+
+	cd_or_exit "$WORKDIR"
+
+	if [[ -d "$BOT_DIR" ]]; then
+		pull
+	else
+		clone
+	fi
+
+	cd_or_exit "$WORKDIR"
+}
+
+install_reqs() {
+	echo "Installing reqs..."
+	cd_or_exit "$BOT_DIR"
+	pip -q install --no-cache-dir -r req*.txt
+}
+
+save_gh_token() {
+	echo "${GH_TOKEN}" >~/.git-credentials
+	git config --global credential.helper store
+}
+
+run_extra_boot_scripts() {
+	cd_or_exit "$BOT_DIR"
+
+	local directory="scripts"
+
+	if [[ -d "$directory" ]]; then
+		if [[ -n "$(ls -A "$directory")" ]]; then
+			for file in "$directory"/*; do
+				if [[ -f "$file" && -x "$file" ]]; then
+					echo "Executing $file"
+					"$file"
+				fi
+			done
+		fi
+	fi
+}
+
+start_nc_server() {
+	port="${WEB_PORT:-PORT}"
+
+	[[ -z "$port" ]] && return 0
+
+	_nc_server() {
+		while true; do
+			busybox nc -l -p "$1" >/dev/null 2>&1 <<-EOF
+				HTTP/1.1 200 OK
+				Content-Type: text/plain
+
+				web server running...
+			EOF
+		done
+	}
+
+	_nc_server "$port" &
+	echo "web server started at port: $port..."
+
+}
+
+run_bot() {
+	echo "starting bot..."
+	cd_or_exit "$BOT_DIR" && bash run
+}
+
+run_bot_with_timeout() {
+	while true; do
+		timeout 3h run_bot
+		echo "Started automatic restart..."
+	done
+}
+
+save_gh_token
+
+# No args provided: run everything
+# Default behaviour except when run from Dockerfile.webhosts
+if [[ $# -eq 0 ]]; then
+	setup_repo
+	install_reqs
+	run_extra_boot_scripts
+	run_bot
+else
+	for arg in "$@"; do
+		case "$arg" in
+		--setup-repo)
+			setup_repo
+			;;
+		--install-reqs)
+			install_reqs
+			;;
+		--run-extra-boot-scripts)
+			run_extra_boot_scripts
+			;;
+		--run)
+			start_nc_server
+			run_bot_with_timeout
+			;;
+		esac
+	done
+fi
