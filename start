@@ -97,23 +97,20 @@ run_extra_boot_scripts() {
 
 start_nc_server() {
 	port="${WEB_PORT:-$PORT}"
-
 	[[ -z "$port" ]] && return 0
 
-	_nc_server() {
-		while true; do
-			busybox nc -l -p "$1" >/dev/null 2>&1 <<-EOF
-				HTTP/1.1 200 OK
-				Content-Type: text/plain
+	handler="/tmp/http-handler"
+	cat >"$handler" <<-'EOF'
+		#!/usr/bin/env sh
+		echo "HTTP/1.1 200 OK"
+		echo "Content-Type: text/plain"
+		echo
+		echo "web server running..."
+	EOF
+	chmod +x "$handler"
 
-				web server running...
-			EOF
-		done
-	}
-
-	_nc_server "$port" &
-	echo "web server started at port: $port..."
-
+	busybox nc -ll -p "$port" -e "$handler" &
+	echo "web server started at port: ${port}..."
 }
 
 run_bot() {
